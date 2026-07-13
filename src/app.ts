@@ -11,9 +11,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Kurumsal HTTP İstek Loglama Modülü
+// Kurumsal HTTP Istek Loglama Modülü
 app.use((req: Request, _res: Response, next: NextFunction): void => {
-  logger.http(`${req.method} ${req.url} - IP: ${req.ip}`);
+  logger.info('📥 Gelen Istek:', req.method, req.url, '- IP:', req.ip);
   next();
 });
 
@@ -23,23 +23,24 @@ app.get('/api/v1/health', (_req: Request, res: Response): void => {
     status: 'success',
     service: 'projecthub-backend',
     environment: process.env.NODE_ENV || 'production',
-    uptime: process.uptime(),
+    uptime: process.env.uptime ? process.env.uptime() : 0,
     timestamp: new Date().toISOString()
   });
 });
 
 // Küresel Hata Yakalama Sınırı (Global Error Boundary)
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {
-  logger.error(`Unhandled Exception: ${err.message} \nStack: ${err.stack}`);
+  logger.error('🚨 Sunucu Hatası Yakalandı:', err.message);
   
   res.status(500).json({
     status: 'error',
     code: 'INTERNAL_SERVER_ERROR',
-    message: 'Sunucu tarafında dahili bir hata oluştu.'
+    message: 'Sunucu tarafinda dahili bir hata olustu.'
   });
 });
 
 app.listen(PORT, (): void => {
-  logger.info(`🚀 ProjectHub Enterprise Engine running on port ${PORT}`);
+  logger.info('🚀 ProjectHub Enterprise Engine basariyla baslatildi. Port:', PORT);
 });
 
+export default app;
