@@ -1,17 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-import pool from '../config/db'; 
+import { Request, Response } from 'express';
+import pool from '../config/database';
 
-export const getProjects = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getProjects = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Burada "await" olarak düzelttim:
-    const result = await pool.query('SELECT * FROM projects');
-    
-    res.status(200).json({
-      success: true,
-      data: result.rows
-    });
+    const result = await pool.query('SELECT * FROM projects ORDER BY created_at DESC');
+    res.status(200).json(result.rows);
   } catch (error) {
-    next(error); 
+    console.error('Projeleri getirirken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası' });
   }
 };
 
